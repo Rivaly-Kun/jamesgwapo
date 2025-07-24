@@ -1,106 +1,104 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 
-const HomeScreen = () => {
+export default function RouteAdvisor() {
+  const fileInputRef = useRef(null);
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleUpload = () => {
+    const fileInput = fileInputRef.current;
+
+    if (!fileInput || !fileInput.files.length) {
+      alert("Please select an image.");
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setDescription('');
+
+    const formdata = new FormData();
+    formdata.append("file", fileInput.files[0]);
+
+    const requestOptions = {
+      method: "POST",
+      body: formdata,
+      redirect: "follow"
+    };
+
+ fetch("http://localhost:3000/proxy-upload", requestOptions)
+  .then((response) => response.json()) // 👈 parse JSON
+  .then((result) => setDescription(result.text)) // 👈 extract the 'text' field
+  .catch((error) => {
+    console.error("Upload error:", error);
+    setError("Upload failed.");
+  })
+  .finally(() => {
+    setLoading(false);
+  });
+
+  };
+
   return (
-    <div style={styles.container}>
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div style={styles.logo}>MyApp</div>
-        <nav style={styles.navMenu}>
-          <a href="#" style={styles.navItem}>Dashboard</a>
-          <a href="#" style={styles.navItem}>Messages</a>
-          <a href="#" style={styles.navItem}>Settings</a>
-          <a href="#" style={styles.navItem}>Logout</a>
-        </nav>
-      </div>
+    <div style={styles.mainContainer}>
+      <div style={styles.header}>AI Image Describer</div>
 
-      {/* Main Section */}
-      <div style={styles.mainContent}>
-        {/* Top Navbar */}
-        <div style={styles.navbar}>
-          <span style={styles.pageTitle}>Home</span>
-          <div style={styles.userInfo}>
-            <span>👤 gabz@gmail.com</span>
-          </div>
-        </div>
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+      />
 
-        {/* Main Area */}
-        <div style={styles.content}>
-          <h2>Welcome to the Home Screen</h2>
-          <p>This is your dashboard. You can customize it as you like.</p>
+      <button style={styles.button} onClick={handleUpload} disabled={loading}>
+        {loading ? "Uploading..." : "Upload & Describe"}
+      </button>
+
+      {description && (
+        <div style={styles.resultBox}>
+          <strong>Description:</strong>
+          <p>{description}</p>
         </div>
-      </div>
+      )}
+
+      {error && <p style={{ color: "red", marginTop: '10px' }}>{error}</p>}
     </div>
   );
-};
+}
 
 const styles = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-    width: '100vw',             // Ensure it spans full width
-    margin: 0,
-    padding: 0,
+  mainContainer: {
+    width: '600px',
+    margin: '40px auto',
+    padding: '30px',
+    borderRadius: '12px',
+    border: '1px solid #ccc',
     fontFamily: 'Arial, sans-serif',
-    overflow: 'hidden',         // Prevent scrollbars unless content requires it
+    backgroundColor: '#f9f9f9',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   },
-  sidebar: {
-    width: '220px',
-    backgroundColor: '#1F2937',
-    color: '#fff',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '20px',
-    boxSizing: 'border-box',
-  },
-  logo: {
+  header: {
+    textAlign: 'center',
     fontSize: '24px',
     fontWeight: 'bold',
-    marginBottom: '30px',
+    marginBottom: '20px',
+    color: '#0084FF',
   },
-  navMenu: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-  },
-  navItem: {
-    color: '#D1D5DB',
-    textDecoration: 'none',
+  button: {
+    marginTop: '15px',
+    padding: '10px 20px',
     fontSize: '16px',
-    padding: '8px',
-    borderRadius: '4px',
-    transition: 'background 0.2s',
+    backgroundColor: '#0084FF',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
   },
-  mainContent: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: '#F9FAFB',
-    height: '100%',
-  },
-  navbar: {
-    height: '60px',
-    backgroundColor: '#FFFFFF',
-    borderBottom: '1px solid #E5E7EB',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 20px',
-    boxSizing: 'border-box',
-  },
-  pageTitle: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-  },
-  userInfo: {
-    fontSize: '14px',
-    color: '#4B5563',
-  },
-  content: {
-    flex: 1,
-    padding: '20px',
-    overflowY: 'auto',
+  resultBox: {
+    marginTop: '20px',
+    padding: '10px',
+    backgroundColor: '#fff',
+    borderRadius: '6px',
+    border: '1px solid #ddd',
   },
 };
-
-export default HomeScreen;

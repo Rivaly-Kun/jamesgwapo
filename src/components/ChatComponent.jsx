@@ -19,7 +19,7 @@ function ChatComponent() {
       if (user) {
         setCurrentUser(user.email);
         localStorage.setItem('currentUser', user.email);
-        setMessages([{ sender: 'System', text: `Welcome back, ${user.email}` }]);
+       // setMessages([{ sender: 'System', text: `Welcome back, ${user.email}` }]);
       } else {
         promptAuth();
       }
@@ -267,8 +267,8 @@ logoutButton: {
 
   mainContainer: {
     display: 'flex',
-    width: '100%',
-    height: '500px',
+    width: '1000px',
+    height: '1000px',
     fontFamily: 'Arial, sans-serif',
     border: '1px solid #ccc',
     borderRadius: '10px',
