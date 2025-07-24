@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 export default function RouteAdvisor() {
   const fileInputRef = useRef(null);
   const [description, setDescription] = useState('');
+  const [condition, setCondition] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,6 +18,7 @@ export default function RouteAdvisor() {
     setLoading(true);
     setError('');
     setDescription('');
+    setCondition('');
 
     const formdata = new FormData();
     formdata.append("file", fileInput.files[0]);
@@ -27,22 +29,24 @@ export default function RouteAdvisor() {
       redirect: "follow"
     };
 
- fetch("http://localhost:3000/proxy-upload", requestOptions)
-  .then((response) => response.json()) // 👈 parse JSON
-  .then((result) => setDescription(result.text)) // 👈 extract the 'text' field
-  .catch((error) => {
-    console.error("Upload error:", error);
-    setError("Upload failed.");
-  })
-  .finally(() => {
-    setLoading(false);
-  });
-
+    fetch("http://localhost:3000/proxy-upload", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        setDescription(result.description || 'No description.');
+        setCondition(result.condition || 'No evaluation.');
+      })
+      .catch((error) => {
+        console.error("Upload error:", error);
+        setError("Upload failed.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <div style={styles.mainContainer}>
-      <div style={styles.header}>AI Image Describer</div>
+      <div style={styles.header}>AI Truck Condition Evaluator</div>
 
       <input
         type="file"
@@ -51,13 +55,20 @@ export default function RouteAdvisor() {
       />
 
       <button style={styles.button} onClick={handleUpload} disabled={loading}>
-        {loading ? "Uploading..." : "Upload & Describe"}
+        {loading ? "Uploading..." : "Upload & Analyze"}
       </button>
 
       {description && (
         <div style={styles.resultBox}>
           <strong>Description:</strong>
           <p>{description}</p>
+        </div>
+      )}
+
+      {condition && (
+        <div style={styles.resultBox}>
+          <strong>Condition:</strong>
+          <p><em>{condition}</em></p>
         </div>
       )}
 
@@ -97,7 +108,7 @@ const styles = {
   resultBox: {
     marginTop: '20px',
     padding: '10px',
-    backgroundColor: '#fff',
+    backgroundColor: '#000000ff',
     borderRadius: '6px',
     border: '1px solid #ddd',
   },
